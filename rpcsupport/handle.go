@@ -11,15 +11,13 @@ import (
 	"log"
 )
 
-
 type RPCService struct {
 	Client *elastic.Client
 	Index  string
 }
 
-
 func (s *RPCService) Process(
-	ctx context.Context, req *pb.ProcessRequest)(*pb.ProcessResult,error){
+	ctx context.Context, req *pb.ProcessRequest) (*pb.ProcessResult, error) {
 	engineReq, err := t.DeserializeRequest(req)
 	if err != nil {
 		return nil, err
@@ -27,15 +25,14 @@ func (s *RPCService) Process(
 
 	engineResult, err := engine.Worker(engineReq)
 	if err != nil {
-		fmt.Printf("==engineResult: error:%s \n",err)
+		fmt.Printf("==engineResult: error:%s \n", err)
 		return nil, err
 	}
-	fmt.Printf("==engineResult: request %d,item %d \n",len(engineResult.Requests),len(engineResult.Items))
+	fmt.Printf("==engineResult: request %d,item %d \n", len(engineResult.Requests), len(engineResult.Items))
 	var result = t.SerializeResult(engineResult)
 
 	return &result, nil
 }
-
 
 func (s *RPCService) SaveItem(
 	ctx context.Context, item *pb.SaveItemRequest) (*pb.SaveItemResult, error) {

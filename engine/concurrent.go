@@ -1,11 +1,11 @@
 package engine
 
 import (
-	"fmt"
-	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/bloom"
+	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/gredis"
 	pb "Michael-Min/octopus/proto"
+	"fmt"
 	"log"
 	"time"
 )
@@ -32,7 +32,7 @@ type ReadyNotifier interface {
 
 var (
 	rateLimiter = time.Tick(
-		20*time.Second / config.Qps)
+		20 * time.Second / config.Qps)
 )
 
 func (e *ConcurrentEngine) Run(seeds ...Request) {
@@ -58,7 +58,7 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		for _, item := range result.Items {
 			go func(i pb.Item) {
 				e.ItemChan <- i
-				fmt.Printf("Iterm:%#v\n",i)
+				fmt.Printf("Iterm:%#v\n", i)
 			}(*item)
 		}
 
@@ -85,7 +85,7 @@ func (e *ConcurrentEngine) createWorker(
 			result, err := e.RequestProcessor(
 				request)
 			if err != nil {
-				log.Printf("Error: Process return==> %v\n",err)
+				log.Printf("Error: Process return==> %v\n", err)
 				continue
 			}
 			log.Printf("Process finish...")
@@ -108,16 +108,16 @@ var visitedUrls = make(map[string]bool)
 
 func isDuplicate(url string) bool {
 	b, err := bloom.NewBloomFilter().IsContains(url)
-	if err != nil{
+	if err != nil {
 		log.Println("IsContains failed:", err.Error())
 		return false
 	}
-	if b == 1{
-		fmt.Printf("Existed url: %s\n",url)
+	if b == 1 {
+		fmt.Printf("Existed url: %s\n", url)
 		return true
 	}
 	err = bloom.NewBloomFilter().Insert(url)
-	if err != nil{
+	if err != nil {
 		log.Println("Insert failed:%s", err.Error())
 		return false
 	}

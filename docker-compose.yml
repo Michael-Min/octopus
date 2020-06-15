@@ -1,0 +1,182 @@
+version: "3"
+
+services:
+
+  etcd1:
+    image: quay.io/coreos/etcd
+    container_name: etcd1
+    command: etcd --data-dir=/etcd-data --name node1 --initial-advertise-peer-urls http://etcd1:2380 --listen-peer-urls http://0.0.0.0:2380 --advertise-client-urls http://etcd1:2379 --listen-client-urls http://0.0.0.0:2379 --initial-cluster-state new --initial-cluster-token etcd-cluster --initial-cluster node1=http://etcd1:2380,node2=http://etcd2:2380,node3=http://etcd3:2380
+    ports:
+      - "23790:2379"
+      - "23800:2380"
+    volumes:
+      - ./data/etcd1:/etcd-data
+    logging:
+      options:
+        max-size: 20m
+
+  etcd2:
+    image: quay.io/coreos/etcd
+    container_name: etcd2
+    command: etcd --data-dir=/etcd-data --name node2 --initial-advertise-peer-urls http://etcd2:2380 --listen-peer-urls http://0.0.0.0:2380 --advertise-client-urls http://etcd2:2379 --listen-client-urls http://0.0.0.0:2379 --initial-cluster-state new --initial-cluster-token etcd-cluster --initial-cluster node1=http://etcd1:2380,node2=http://etcd2:2380,node3=http://etcd3:2380
+    ports:
+      - "23791:2379"
+      - "23801:2380"
+    volumes:
+      - ./data/etcd2:/etcd-data
+    logging:
+      options:
+        max-size: 20m
+
+  etcd3:
+    image: quay.io/coreos/etcd
+    container_name: etcd3
+    command: etcd --data-dir=/etcd-data --name node3 --initial-advertise-peer-urls http://etcd3:2380 --listen-peer-urls http://0.0.0.0:2380 --advertise-client-urls http://etcd3:2379 --listen-client-urls http://0.0.0.0:2379 --initial-cluster-state new --initial-cluster-token etcd-cluster --initial-cluster node1=http://etcd1:2380,node2=http://etcd2:2380,node3=http://etcd3:2380
+    ports:
+      - "23792:2379"
+      - "23802:2380"
+    volumes:
+      - ./data/etcd3:/etcd-data
+    logging:
+      options:
+        max-size: 20m
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/redis-data
+    command: "redis-server"
+    logging:
+      options:
+        max-size: 20m
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "discovery.type=single-node"
+    restart: always
+    volumes:
+      - ./data/ES:/ES-data
+    logging:
+      options:
+        max-size: 50m
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    ports:
+      - "5601:5601"
+    restart: always
+    volumes:
+      - ./data/kibana:/kibana-data
+    logging:
+      options:
+        max-size: 20m
+    depends_on:
+      - elasticsearch
+
+  worker1:
+    build:
+      context: "./worker/server/"
+    image: worker:latest
+    command: "--port=8901 --httpPort=8081"
+    ports:
+      - "8901:8901"
+      - "8081:8081"
+    restart: always
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    volumes:
+      - ./data/work1:/work-data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 30m
+
+  worker2:
+    build:
+      context: "./worker/server/"
+    image: worker:latest
+    command: "--port=8902 --httpPort=8082"
+    ports:
+      - "8902:8902"
+      - "8082:8082"
+    restart: always
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    volumes:
+      - ./data/work2:/work-data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 30m
+
+  worker3:
+    build:
+      context: "./worker/server/"
+    image: worker:latest
+    command: "--port=8903 --httpPort=8083"
+    ports:
+      - "8903:8903"
+      - "8083:8083"
+    restart: always
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+    volumes:
+      - ./data/work2:/work-data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: 30m
+
+  itemsave1:
+    build:
+      context: "./persist/server/"
+    image: itemsave:latest
+    #    command: "--port=2233"
+    ports:
+      - "2233:2233"
+    restart: always
+    depends_on:
+      - etcd1
+      - etcd2
+      - etcd3
+      - elasticsearch
+    #    links:
+    #      - elasticsearch
+    volumes:
+      - ./data/itemsave:/itemsave-data
+      - ./delay-start.sh:/delay-start.sh
+    logging:
+      options:
+        max-size: 30m
+    #    network_mode: host
+    entrypoint: sh /delay-start.sh  -d 'elasticsearch:9200' -t 30  -c '/bin/go/itemsave --port=2233'
+
+  main:
+    build:
+      context: "./"
+    image: main:latest
+    restart: always
+    ports:
+      - "8899:8899"
+    depends_on:
+      - itemsave1
+      - worker1
+      - worker2
+      - worker3
+    volumes:
+      - ./data/main:/main-data
+    logging:
+      options:
+        max-size: 20m

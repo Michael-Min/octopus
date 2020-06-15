@@ -20,7 +20,7 @@ func main() {
 	)
 	gredis.Setup()
 	fetcher.SetVerboseLogging()
-	itemChan, err = persistClient.ItemSaver(":9010")
+	itemChan, err = persistClient.ItemSaver(config.Host+":2233")
 	if err != nil {
 		panic(err)
 	}

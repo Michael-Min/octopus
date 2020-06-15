@@ -42,7 +42,7 @@ func Fetch(url string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted{
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusAccepted {
 		return nil,
 			fmt.Errorf("wrong status code: %d",
 				resp.StatusCode)

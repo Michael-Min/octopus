@@ -87,13 +87,12 @@ func (s *EtcdService) keepLive() (<-chan *clientv3.LeaseKeepAliveResponse, error
 		return nil, err
 	}
 
-	fmt.Printf("[Register]: Key:%s, Value:%s\n", key, string(value))
-
 	_, err = s.client.Put(context.TODO(), key, string(value), clientv3.WithLease(resp.ID))
 	if nil != err {
 		fmt.Println(err.Error())
 		return nil, err
 	}
+	fmt.Printf("[Register]: Key:%s, Value:%s\n", key, string(value))
 	s.leaseid = resp.ID
 
 	return s.client.KeepAlive(context.TODO(), resp.ID)

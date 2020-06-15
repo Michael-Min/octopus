@@ -1,36 +1,38 @@
 package bloom
 
 import (
+	"Michael-Min/octopus/gredis"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
 	"github.com/gomodule/redigo/redis"
-	"Michael-Min/octopus/gredis"
 	"strconv"
 )
+
 var (
-	BitSize uint = 1<<31
-	Seeds = []uint{1,2,3,5}
+	BitSize  uint = 1 << 31
+	Seeds         = []uint{1, 2, 3, 5}
 	BlockNum uint = 1
-	Key = "bloomfilter"
-	Ret = 1
+	Key           = "bloomfilter"
+	Ret           = 1
 )
+
 type SimpleHash struct {
-	Cap uint
+	Cap  uint
 	Seed uint
 }
 
 type BloomFilter struct {
-	BitSize uint
-	Seeds   []uint
-	Key     string
+	BitSize  uint
+	Seeds    []uint
+	Key      string
 	BlockNum uint
 	HashFunc []*SimpleHash
 }
 
-func NewBloomFilter() *BloomFilter{
+func NewBloomFilter() *BloomFilter {
 	var HashMiddleFunc []*SimpleHash
-	for _, v := range Seeds{
+	for _, v := range Seeds {
 		HashMiddleFunc = append(HashMiddleFunc, &SimpleHash{
 			Cap:  BitSize,
 			Seed: v,
@@ -46,8 +48,8 @@ func NewBloomFilter() *BloomFilter{
 }
 
 // IsContains int 1 represent has already existed
-func (b *BloomFilter) IsContains(s string) (int, error){
-	if len(s) == 0{
+func (b *BloomFilter) IsContains(s string) (int, error) {
+	if len(s) == 0 {
 		return 0, errors.New("input is must")
 	}
 	input := b.MD5(s)
@@ -55,11 +57,11 @@ func (b *BloomFilter) IsContains(s string) (int, error){
 	if err != nil {
 		return 0, errors.New("string to uint64 fail")
 	}
-	name := b.Key + strconv.Itoa(int(uint(n) % b.BlockNum))
-	for _, f := range b.HashFunc{
+	name := b.Key + strconv.Itoa(int(uint(n)%b.BlockNum))
+	for _, f := range b.HashFunc {
 		loc := f.Hash(input)
 		r, err := redis.Int(gredis.GetBit(name, loc))
-		if err != nil{
+		if err != nil {
 			return 0, err
 		}
 		Ret = Ret & r
@@ -68,8 +70,8 @@ func (b *BloomFilter) IsContains(s string) (int, error){
 	return Ret, nil
 }
 
-func (b *BloomFilter) Insert(s string) error{
-	if len(s) == 0{
+func (b *BloomFilter) Insert(s string) error {
+	if len(s) == 0 {
 		return errors.New("input is must")
 	}
 	input := b.MD5(s)
@@ -77,24 +79,23 @@ func (b *BloomFilter) Insert(s string) error{
 	if err != nil {
 		return errors.New("string to uint64 fail")
 	}
-	name := b.Key + strconv.Itoa(int(uint(n) % b.BlockNum))
-	for _, f := range b.HashFunc{
+	name := b.Key + strconv.Itoa(int(uint(n)%b.BlockNum))
+	for _, f := range b.HashFunc {
 		loc := f.Hash(input)
 		gredis.SetBit(name, loc, 1)
 	}
-	return  nil
+	return nil
 }
 
-func (s *SimpleHash) Hash(value string) uint{
+func (s *SimpleHash) Hash(value string) uint {
 	var ret uint = 0
-	for _, v := range value{
-		ret += s.Seed * ret + uint(v)
+	for _, v := range value {
+		ret += s.Seed*ret + uint(v)
 	}
-	var bz = BitSize-1
+	var bz = BitSize - 1
 	r := bz & ret
- 	return r
+	return r
 }
-
 
 func (b *BloomFilter) MD5(value string) string {
 	m := md5.New()

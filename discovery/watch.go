@@ -129,7 +129,7 @@ func (m *EtcdMaster) GetNodeRandom() (EtcdNode, bool) {
 		return EtcdNode{}, false
 	}
 	idx := rand.Intn(count)
-	fmt.Printf("==Nodes cout:%d,idx=%d\n",count,idx)
+	fmt.Printf("==Nodes count:%d,idx=%d\n", count, idx)
 	for _, v := range m.Nodes {
 		if idx == 0 {
 			return *v, true

@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"fmt"
 	pb "Michael-Min/octopus/proto"
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -45,10 +45,10 @@ func ParseCarDetail(contents []byte, url string) engine.ParseResult {
 	result := engine.ParseResult{
 		Items: []*pb.Item{
 			{
-				Id:      id,
-				Url:     url,
-				Type:    "xcar",
-				Car:     &car,
+				Id:   id,
+				Url:  url,
+				Type: "xcar",
+				Car:  &car,
 			},
 		},
 	}

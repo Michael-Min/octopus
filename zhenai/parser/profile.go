@@ -1,11 +1,11 @@
 package parser
 
 import (
-	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/engine"
 	pb "Michael-Min/octopus/proto"
+	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"regexp"
 	"strconv"
 	"strings"
@@ -47,32 +47,32 @@ func parseProfile(
 	profile.Name = name
 
 	dom, err := goquery.NewDocumentFromReader(strings.NewReader(string(contents)))
-	if err!=nil{
+	if err != nil {
 		return engine.ParseResult{}
 	}
-	tmp:=dom.Find("div.des.f-cl").Map(func(i int, selection *goquery.Selection) string {
+	tmp := dom.Find("div.des.f-cl").Map(func(i int, selection *goquery.Selection) string {
 		return selection.Text()
 	})
 	fmt.Println(tmp)
-	selections:=dom.Find("div.des.f-cl").Each(func(i int, selection *goquery.Selection) {
+	selections := dom.Find("div.des.f-cl").Each(func(i int, selection *goquery.Selection) {
 		fmt.Println(selection.Text())
 	})
-	profile.Marriage=selections.Eq(0).Text()
-	i64,err:=strconv.ParseInt(strings.TrimRight(selections.Eq(1).Text(),"岁"),10,32)
-	if err ==nil{
-		profile.Age=int32(i64)
+	profile.Marriage = selections.Eq(0).Text()
+	i64, err := strconv.ParseInt(strings.TrimRight(selections.Eq(1).Text(), "岁"), 10, 32)
+	if err == nil {
+		profile.Age = int32(i64)
 	}
-	profile.Xinzuo=selections.Eq(2).Text()
-	i64,err=strconv.ParseInt(strings.TrimRight(selections.Eq(3).Text(),"cm"),10,32)
-	if err ==nil{
-		profile.Age=int32(i64)
+	profile.Xinzuo = selections.Eq(2).Text()
+	i64, err = strconv.ParseInt(strings.TrimRight(selections.Eq(3).Text(), "cm"), 10, 32)
+	if err == nil {
+		profile.Age = int32(i64)
 	}
-	incomeArr:=strings.Split(selections.Eq(5).Text(),":")
-	if len(incomeArr)>1{
-		profile.Income=incomeArr[1]
+	incomeArr := strings.Split(selections.Eq(5).Text(), ":")
+	if len(incomeArr) > 1 {
+		profile.Income = incomeArr[1]
 	}
-	profile.Occupation=selections.Eq(6).Text()
-	profile.Education=selections.Eq(7).Text()
+	profile.Occupation = selections.Eq(6).Text()
+	profile.Education = selections.Eq(7).Text()
 	fmt.Println(profile)
 
 	//age, err := strconv.Atoi(

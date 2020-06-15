@@ -1,8 +1,8 @@
 package scheduler
 
 import (
-	"fmt"
 	"Michael-Min/octopus/engine"
+	"fmt"
 	"log"
 )
 
@@ -16,7 +16,7 @@ func (s *QueuedScheduler) WorkerChan() chan engine.Request {
 }
 
 func (s *QueuedScheduler) Submit(r engine.Request) {
-	fmt.Printf("Submit: request,url:%v\n",r.Url)
+	fmt.Printf("Submit: request,url:%v\n", r.Url)
 	s.requestChan <- r
 }
 
@@ -40,7 +40,7 @@ func (s *QueuedScheduler) Run() {
 				activeWorker = workerQ[0]
 				activeRequest = requestQ[0]
 			}
-			log.Printf("Scheduler: requestQ size:%d, workerQ size:%d\n",len(requestQ),len(workerQ))
+			log.Printf("Scheduler: requestQ size:%d, workerQ size:%d\n", len(requestQ), len(workerQ))
 			select {
 			case r := <-s.requestChan:
 				log.Printf("Scheduler: get request")

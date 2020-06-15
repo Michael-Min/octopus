@@ -1,8 +1,8 @@
 package rpcsupport
 
 import (
-	"google.golang.org/grpc"
 	pb "Michael-Min/octopus/proto"
+	"google.golang.org/grpc"
 	"log"
 	"net"
 )
@@ -19,7 +19,7 @@ func ServeRpc(
 	}
 	log.Printf("Listening on %s", host)
 
-	if err := s.Serve(listener);err != nil{
+	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	return nil

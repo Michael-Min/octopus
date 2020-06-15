@@ -1,10 +1,11 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/discovery"
 	"Michael-Min/octopus/rpcsupport"
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,11 +29,11 @@ func main() {
 
 	dis := discovery.NewCrawlerDiscover()
 	go func() {
-		if err := dis.Discovery.Register(dis.Hosts, "worker", fmt.Sprintf("127.0.0.1:%d", *port), discovery.EtcdServiceInfo{Info: "1"}); err != nil {
+		if err := dis.Discovery.Register(dis.Hosts, "worker", fmt.Sprintf(config.Host+":%d", *port), discovery.EtcdServiceInfo{Info: "1"}); err != nil {
 			log.Fatal(err)
 		}
 		if err := rpcsupport.ServeRpc(fmt.Sprintf(":%d", *port), &rpcsupport.RPCService{}); err != nil {
-			dis.Discovery.Stop("worker", fmt.Sprintf("127.0.0.1:%d", *port))
+			dis.Discovery.Stop("worker", fmt.Sprintf(config.Host+":%d", *port))
 			log.Fatal(err)
 		}
 	}()

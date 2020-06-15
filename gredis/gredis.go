@@ -1,9 +1,9 @@
 package gredis
 
 import (
+	"Michael-Min/octopus/config"
 	"github.com/gomodule/redigo/redis"
 	"github.com/prometheus/common/log"
-	"Michael-Min/octopus/config"
 	"time"
 )
 
@@ -31,7 +31,6 @@ func Setup() {
 
 	return
 }
-
 
 // Set redis hash表的使用
 func SetBit(key string, field, value interface{}) {

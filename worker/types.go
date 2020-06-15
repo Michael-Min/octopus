@@ -7,11 +7,10 @@ import (
 
 	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/engine"
+	pb "Michael-Min/octopus/proto"
 	xcar "Michael-Min/octopus/xcar/parser"
 	zhenai "Michael-Min/octopus/zhenai/parser"
-	pb "Michael-Min/octopus/proto"
 )
-
 
 func SerializeRequest(r engine.Request) *pb.ProcessRequest {
 	name, args := r.Parser.Serialize()
@@ -81,8 +80,8 @@ func deserializeParser(
 			config.ParseCity), nil
 
 	case config.ParseProfile:
-			return zhenai.NewProfileParser(
-				p.Args), nil
+		return zhenai.NewProfileParser(
+			p.Args), nil
 	case config.ParseCarDetail:
 		return engine.NewFuncParser(
 			xcar.ParseCarDetail,

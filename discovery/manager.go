@@ -17,7 +17,7 @@ type EtcdDis struct {
 // 注册相关的函数
 //----------------------------------------------------------------------------------
 // 注册
-func (d *EtcdDis) Register(host []string, service, key string, value EtcdServiceInfo) error{
+func (d *EtcdDis) Register(host []string, service, key string, value EtcdServiceInfo) error {
 	name := service + "/" + key
 	var s *EtcdService
 	var e error
@@ -58,7 +58,6 @@ func (d *EtcdDis) Stop(service, key string) {
 		sri.Stop()
 	}
 }
-
 
 //----------------------------------------------------------------------------------
 // 监听相关的函数
