@@ -16,7 +16,7 @@ A distributed crawler collection program implemented in Go language
 * Rule: bloom filter, Concurrent scheduling
 
 ## Getting started
-##### Go build
+#### Go build
 - Make build main, worker and itemsave:
 ```
 cd octopus && make go-build
@@ -24,7 +24,7 @@ cd octopus/worker/server && make go-build
 cd octopus/persist/server && make go-build
 ```
     
-##### Docker running
+#### Docker running
 - Docker compose on Mac
 ```
 cd octopus && docker-compose up -d
