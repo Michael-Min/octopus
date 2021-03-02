@@ -11,9 +11,11 @@ A distributed crawler collection program implemented in Go language
 ## Features
 * Simple: microservice, gRPC request
 * Expand: etcd cluster registration and monitoring service
+* Distributed: Build multiple containers that include main,worker,itemsaver
 * Data: ES storage, kibana show
-* Deploy: Docker container support
+* Deploy: Docker compose manage container
 * Rule: bloom filter, Concurrent scheduling
+* Supply: go mod, debug in container
 
 ## Getting started
 #### Go build
@@ -34,4 +36,10 @@ cd octopus && docker-compose up -d
 - Request the following URL on the browser
 ```
 http://localhost:5601/app/kibana
+```
+
+#### debug supply
+- Debug with dlv in the container
+```
+#use Dockerfile.debug in docker-compose.yml
 ```
