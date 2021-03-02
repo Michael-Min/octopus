@@ -1,0 +1,33 @@
+###=== debug ====
+
+###--- build in container ---
+## Compile stage
+#FROM golang:1.14 AS build-env
+## Build Delve
+#RUN go get github.com/go-delve/delve/cmd/dlv
+#ADD . /dockerdev
+#WORKDIR /dockerdev
+#RUN go build -gcflags="all=-N -l" -o /main
+## Final stage
+#FROM debian:buster
+#EXPOSE 8800 40000
+#WORKDIR /
+#COPY --from=build-env /go/bin/dlv /
+#COPY --from=build-env /main /
+#CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/main"]
+
+##--- build in local ---
+# Compile stage
+FROM golang:1.14 AS build-env
+# Build Delve
+RUN export GO111MODULE=on && export GOPROXY=https://goproxy.io,direct && go get github.com/go-delve/delve/cmd/dlv
+ADD main-debug /main
+# Final stage
+FROM debian:buster
+EXPOSE 8800 40000
+WORKDIR /
+COPY --from=build-env /go/bin/dlv /
+COPY --from=build-env /main /
+#ADD main-debug /main
+#ADD ./dlv /
+CMD ["/dlv", "--listen=:40000", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/main"]

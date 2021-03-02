@@ -1,0 +1,16 @@
+####=== debug ====
+##--- build in local ---
+# Compile stage
+FROM golang:1.14 AS build-env
+# Build Delve
+RUN export GO111MODULE=on && export GOPROXY=https://goproxy.io,direct && go get github.com/go-delve/delve/cmd/dlv
+ADD worker-debug /worker
+# Final stage
+FROM debian:buster
+EXPOSE 8083 8903 40001
+WORKDIR /
+COPY --from=build-env /go/bin/dlv /
+COPY --from=build-env /worker /
+#ADD worker-debug /worker
+#ADD ./dlv /
+CMD ["/dlv", "--listen=:40001", "--headless=true", "--api-version=2", "--accept-multiclient", "exec", "/worker", "-- -port=8903 -httpPort=8083"]
