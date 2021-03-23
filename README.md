@@ -12,7 +12,7 @@ A distributed crawler collection program implemented in Go language
 * Simple: microservice, gRPC request
 * Expand: etcd cluster registration and monitoring service
 * Distributed: Build multiple containers that include main,worker,itemsaver
-* Data: ES storage, kibana show
+* Data: ES storage, Kibana show, RabbitMQ message broker
 * Deploy: Docker compose manage container
 * Rule: bloom filter, Concurrent scheduling
 * Supply: go mod, debug in container
