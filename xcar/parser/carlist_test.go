@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+/*	城市列表
+	https://info.xcar.com.cn/ches_nav.php?navul=//newcar.xcar.com.cn
+*/
+
 func TestParseCarList(t *testing.T) {
 	contents, err := ioutil.ReadFile(
 		"carlist_test_data.html")

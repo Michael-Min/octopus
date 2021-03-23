@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func Save(

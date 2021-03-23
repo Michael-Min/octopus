@@ -86,6 +86,10 @@ func deserializeParser(
 		return engine.NewFuncParser(
 			xcar.ParseCarDetail,
 			config.ParseCarDetail), nil
+	case config.ParseCarDetailFake:
+		return engine.NewFuncParser(
+			xcar.ParseCarDetailFake,
+			config.ParseCarDetailFake), nil
 	case config.ParseCarModel:
 		return engine.NewFuncParser(
 			xcar.ParseCarModel,

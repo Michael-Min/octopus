@@ -2,7 +2,6 @@ package scheduler
 
 import (
 	"Michael-Min/octopus/engine"
-	"fmt"
 	"log"
 )
 
@@ -16,13 +15,13 @@ func (s *QueuedScheduler) WorkerChan() chan engine.Request {
 }
 
 func (s *QueuedScheduler) Submit(r engine.Request) {
-	fmt.Printf("Submit: request,url:%v\n", r.Url)
+	log.Printf("Submit: request,url:%v\n", r.Url)
 	s.requestChan <- r
 }
 
 func (s *QueuedScheduler) WorkerReady(
 	w chan engine.Request) {
-	fmt.Println("Submit: chan request")
+	log.Println("Submit: chan request")
 	s.workerChan <- w
 }
 

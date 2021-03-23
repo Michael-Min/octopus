@@ -1,1 +1,4 @@
 /data/
+main-debug
+persist/server/itemsaver-debug
+worker/server/worker-debug

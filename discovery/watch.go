@@ -3,8 +3,8 @@ package discovery
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"go.etcd.io/etcd/v3/clientv3"
+	"github.com/coreos/etcd/clientv3"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -31,7 +31,7 @@ func NewMaster(host []string, cluster string, watchPath string) (*EtcdMaster, er
 	})
 
 	if nil != err {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func NewEtcdNode(ev *clientv3.Event) *EtcdServiceInfo {
 	info := &EtcdServiceInfo{}
 	err := json.Unmarshal([]byte(ev.Kv.Value), info)
 	if nil != err {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	}
 	return info
 }
@@ -62,10 +62,10 @@ func (m *EtcdMaster) WatchNodes() {
 	// 查看之前存在的节点
 	resp, err := m.Client.Get(context.Background(), m.Cluster+"/"+m.Path, clientv3.WithPrefix())
 	if nil != err {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 	} else {
 		for _, ev := range resp.Kvs {
-			fmt.Printf("[Watch]: add dir:%q, value:%q\n", ev.Key, ev.Value)
+			log.Printf("[Watch]: add dir:%q, value:%q\n", ev.Key, ev.Value)
 			info := &EtcdServiceInfo{}
 			json.Unmarshal([]byte(ev.Value), info)
 			m.addNode(string(ev.Key), info)
@@ -77,18 +77,18 @@ func (m *EtcdMaster) WatchNodes() {
 		for _, ev := range wresp.Events {
 			switch ev.Type {
 			case clientv3.EventTypePut:
-				fmt.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
+				log.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
 				info := NewEtcdNode(ev)
 				m.addNode(string(ev.Kv.Key), info)
 			case clientv3.EventTypeDelete:
-				fmt.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
+				log.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
 				k := ev.Kv.Key
 				if len(ev.Kv.Key) > (len(m.Cluster) + 1) {
 					k = ev.Kv.Key[len(m.Cluster)+1:]
 				}
 				delete(m.Nodes, string(k))
 			default:
-				fmt.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
+				log.Printf("[%s] dir:%q, value:%q\n", ev.Type, ev.Kv.Key, ev.Kv.Value)
 			}
 		}
 	}
@@ -129,7 +129,7 @@ func (m *EtcdMaster) GetNodeRandom() (EtcdNode, bool) {
 		return EtcdNode{}, false
 	}
 	idx := rand.Intn(count)
-	fmt.Printf("==Nodes count:%d,idx=%d\n", count, idx)
+	log.Printf("==Nodes count:%d,idx=%d\n", count, idx)
 	for _, v := range m.Nodes {
 		if idx == 0 {
 			return *v, true

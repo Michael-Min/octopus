@@ -1,7 +1,7 @@
 package discovery
 
 import (
-	"fmt"
+	"log"
 	"strings"
 )
 
@@ -22,7 +22,7 @@ func (d *EtcdDis) Register(host []string, service, key string, value EtcdService
 	var s *EtcdService
 	var e error
 	if s, e = NewService(d.Cluster, name, value, host); nil != e {
-		fmt.Printf("[Manager]: Register service:%s error:%s\n", service, e.Error())
+		log.Printf("[Manager]: Register service:%s error:%s\n", service, e.Error())
 		return e
 	}
 
@@ -31,7 +31,7 @@ func (d *EtcdDis) Register(host []string, service, key string, value EtcdService
 	}
 
 	if _, ok := d.MapRegister[name]; ok {
-		fmt.Printf("[Manager]: Service:%s Have Registered!\n", name)
+		log.Printf("[Manager]: Service:%s Have Registered!\n", name)
 		return nil
 	}
 
@@ -66,7 +66,7 @@ func (d *EtcdDis) Watch(host []string, service string) {
 	var w *EtcdMaster
 	var e error
 	if w, e = NewMaster(host, d.Cluster, service); nil != e {
-		fmt.Printf("[Manager]: Watch Service:%s Failed!Error:%s\n", service, e.Error())
+		log.Printf("[Manager]: Watch Service:%s Failed!Error:%s\n", service, e.Error())
 		return
 	}
 
@@ -75,7 +75,7 @@ func (d *EtcdDis) Watch(host []string, service string) {
 	}
 
 	if _, ok := d.MapWatch[service]; ok {
-		fmt.Printf("[Manager]: Service:%s Have Watch!\n", service)
+		log.Printf("[Manager]: Service:%s Have Watch!\n", service)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (d *EtcdDis) Watch(host []string, service string) {
 // 获取服务的节点信息-随机获取
 func (d *EtcdDis) GetServiceInfoRandom(service string) (EtcdNode, bool) {
 	if nil == d.MapWatch {
-		fmt.Println("[Manager]: MapWatch is nil")
+		log.Println("[Manager]: MapWatch is nil")
 		return EtcdNode{}, false
 	}
 
@@ -96,7 +96,7 @@ func (d *EtcdDis) GetServiceInfoRandom(service string) (EtcdNode, bool) {
 			}
 		}
 	} else {
-		fmt.Printf("[Manager]: Service:%s Not Be Watched!\n", service)
+		log.Printf("[Manager]: Service:%s Not Be Watched!\n", service)
 	}
 
 	return EtcdNode{}, false
@@ -105,7 +105,7 @@ func (d *EtcdDis) GetServiceInfoRandom(service string) (EtcdNode, bool) {
 // 获取服务的节点信息-全部获取
 func (d *EtcdDis) GetServiceInfoAllNode(service string) ([]EtcdNode, bool) {
 	if nil == d.MapWatch {
-		fmt.Println("MapWatch is nil")
+		log.Println("MapWatch is nil")
 		return []EtcdNode{}, false
 	}
 
@@ -114,7 +114,7 @@ func (d *EtcdDis) GetServiceInfoAllNode(service string) ([]EtcdNode, bool) {
 			return v.GetAllNodes(), true
 		}
 	} else {
-		fmt.Printf("[Manager]: Service:%s Not Be Watched!\n", service)
+		log.Printf("[Manager]: Service:%s Not Be Watched!\n", service)
 	}
 
 	return []EtcdNode{}, false

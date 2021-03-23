@@ -5,7 +5,8 @@ import (
 	"Michael-Min/octopus/config"
 	"Michael-Min/octopus/gredis"
 	pb "Michael-Min/octopus/proto"
-	"fmt"
+	"Michael-Min/octopus/rabbitmq"
+	"encoding/json"
 	"log"
 	"time"
 )
@@ -32,11 +33,11 @@ type ReadyNotifier interface {
 
 var (
 	rateLimiter = time.Tick(
-		20 * time.Second / config.Qps)
+		10 * time.Second / config.Qps)
 )
 
 func (e *ConcurrentEngine) Run(seeds ...Request) {
-	out := make(chan ParseResult)
+	out := make(chan ParseResult,1)
 	gredis.Setup()
 	e.Scheduler.Run()
 	for i := 0; i < e.WorkerCount; i++ {
@@ -52,13 +53,24 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		e.Scheduler.Submit(r)
 	}
 
+	mqSimple := rabbitmq.NewRabbitMQSimple("xcar")
 	for {
-		fmt.Println("Loop: fetch result <==>")
+		log.Println("Loop: fetch result <==>")
 		result := <-out
 		for _, item := range result.Items {
 			go func(i pb.Item) {
-				e.ItemChan <- i
-				fmt.Printf("Iterm:%#v\n", i)
+				//use MQ
+				bytes, _ := json.Marshal(i)
+				if mqSimple.Conn.IsClosed() {
+					log.Println("RabbitMQ连接断开，重新连接...")
+					mqSimple.DoConnect()
+				}
+				err:=mqSimple.PublishSimple(string(bytes))
+				if err != nil{
+					log.Println(err)
+				}
+				//e.ItemChan <- i
+				log.Printf("Iterm:%#v\n", i)
 			}(*item)
 		}
 
@@ -77,7 +89,7 @@ func (e *ConcurrentEngine) createWorker(
 	go func() {
 		for {
 			ready.WorkerReady(in)
-			fmt.Println("Process wait request...")
+			log.Println("Process wait request...")
 			request := <-in
 			log.Printf("Process load request...")
 			<-rateLimiter
@@ -113,8 +125,9 @@ func isDuplicate(url string) bool {
 		return false
 	}
 	if b == 1 {
-		fmt.Printf("Existed url: %s\n", url)
-		return true
+		log.Printf("Existed url: %s\n", url)
+		//debug时注释掉
+		//return true
 	}
 	err = bloom.NewBloomFilter().Insert(url)
 	if err != nil {

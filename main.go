@@ -20,7 +20,8 @@ func main() {
 	)
 	gredis.Setup()
 	fetcher.SetVerboseLogging()
-	itemChan, err = persistClient.ItemSaver(config.Host+":2233")
+	//itemChan, err = persistClient.ItemSaver(config.Host+":2233")
+	err = persistClient.ItemSaverAsync(config.Host+":2233")
 	if err != nil {
 		panic(err)
 	}
@@ -32,14 +33,14 @@ func main() {
 	processor := worker.CreateProcessor(pool)
 	e := engine.ConcurrentEngine{
 		Scheduler:        &scheduler.QueuedScheduler{},
-		WorkerCount:      2,
+		WorkerCount:      10,
 		ItemChan:         itemChan,
 		RequestProcessor: processor,
 	}
 	e.Run(engine.Request{
-		Url: "http://newcar.xcar.com.cn/car/",
+		Url: "http://fake.newcar.xcar.com.cn/car/",
 		Parser: engine.NewFuncParser(
-			parser.ParseCarList,
-			config.ParseCarList),
+			parser.ParseCarDetailFake,
+			config.ParseCarDetailFake),
 	})
 }

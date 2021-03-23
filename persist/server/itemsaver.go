@@ -2,11 +2,10 @@ package main
 
 import (
 	"Michael-Min/octopus/config"
-	c "Michael-Min/octopus/config"
 	"Michael-Min/octopus/rpcsupport"
 	"flag"
 	"fmt"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"log"
 	"net/http"
 )
@@ -39,9 +38,10 @@ func main() {
 
 func serveRpc(host, index string) error {
 	client, err := elastic.NewClient(
-		elastic.SetURL(c.ElasticHost),
+		elastic.SetURL(config.ElasticHost),
 		elastic.SetSniff(false))
 	if err != nil {
+		log.Fatalf("[Error]: dail to ES wrong: %+v",err)
 		return err
 	}
 

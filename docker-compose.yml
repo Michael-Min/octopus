@@ -41,6 +41,25 @@ services:
       options:
         max-size: 20m
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: "no"
+    hostname: my-rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    #环境变量
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    logging:
+      options:
+        max-size: 20m
+
+
   redis:
     image: redis:latest
     ports:
@@ -79,6 +98,7 @@ services:
     depends_on:
       - elasticsearch
 
+
   worker1:
     build:
       context: "./worker/server/"
@@ -98,6 +118,7 @@ services:
       driver: "json-file"
       options:
         max-size: 30m
+
 
   worker2:
     build:
@@ -119,14 +140,19 @@ services:
       options:
         max-size: 30m
 
+
   worker3:
     build:
       context: "./worker/server/"
+# DEBUG
+#      dockerfile: "Dockerfile.debug"
     image: worker:latest
     command: "--port=8903 --httpPort=8083"
     ports:
       - "8903:8903"
       - "8083:8083"
+# DEBUG
+#      - "40001:40001"
     restart: always
     depends_on:
       - etcd1
@@ -138,14 +164,24 @@ services:
       driver: "json-file"
       options:
         max-size: 30m
+# DEBUG
+#    security_opt:
+#      - "seccomp:unconfined"
+#    cap_add:
+#      - SYS_PTRACE
+#    command: /dlv --headless --listen=:40001 --api-version=2 exec /worker -- -port=8903 -httpPort=8083
+
 
   itemsave1:
     build:
       context: "./persist/server/"
+# DEBUG
+#      dockerfile: "Dockerfile.debug"
     image: itemsave:latest
-    #    command: "--port=2233"
     ports:
       - "2233:2233"
+# DEBUG
+#      - "40010:40010"
     restart: always
     depends_on:
       - etcd1
@@ -155,28 +191,47 @@ services:
     #    links:
     #      - elasticsearch
     volumes:
-      - ./data/itemsave:/itemsave-data
+      - ./data/itemsaver:/itemsaver-data
       - ./delay-start.sh:/delay-start.sh
     logging:
       options:
         max-size: 30m
     #    network_mode: host
-    entrypoint: sh /delay-start.sh  -d 'elasticsearch:9200' -t 30  -c '/bin/go/itemsave --port=2233'
+    entrypoint: sh /delay-start.sh  -d 'elasticsearch:9200' -t 30  -c '/bin/go/itemsaver --port=2233'
+# DEBUG
+#    security_opt:
+#      - "seccomp:unconfined"
+#    cap_add:
+#      - SYS_PTRACE
+#    entrypoint: bash /delay-start.sh  -d 'elasticsearch:9200' -t 30  -c '/dlv --headless --listen=:40010 --api-version=2 exec /itemsaver -- -port=2233'
+
 
   main:
     build:
       context: "./"
+# DEBUG
+#      dockerfile: "Dockerfile.debug"
     image: main:latest
     restart: always
     ports:
-      - "8899:8899"
+      - "8800:8800"
+# DEBUG
+#      - "40000:40000"
     depends_on:
       - itemsave1
       - worker1
       - worker2
       - worker3
+      - rabbitmq
     volumes:
       - ./data/main:/main-data
     logging:
       options:
         max-size: 20m
+# DEBUG
+##   security_opt 和 cap_add 属性，允许调试器在 Docker 环境中运行
+#    security_opt:
+#      - "seccomp:unconfined"
+#    cap_add:
+#      - SYS_PTRACE
+#    command: /dlv --headless --listen=:40000 --api-version=2 exec /main

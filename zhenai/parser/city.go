@@ -28,7 +28,7 @@ func ParseCity(
 			})
 	}
 
-	cityUrlRe.FindAllSubmatch(
+	matches = cityUrlRe.FindAllSubmatch(
 		contents, -1)
 	for _, m := range matches {
 		result.Requests = append(result.Requests,

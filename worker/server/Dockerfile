@@ -1,3 +1,3 @@
 FROM alpine
-ADD woker /bin/go/worker
+ADD worker /bin/go/worker
 ENTRYPOINT ["/bin/go/worker"]

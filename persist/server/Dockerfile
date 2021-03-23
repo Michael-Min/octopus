@@ -1,3 +1,3 @@
 FROM alpine
-ADD itemsave /bin/go/itemsave
+ADD itemsaver /bin/go/itemsaver
 ENTRYPOINT ["/bin/go/itemsave"]

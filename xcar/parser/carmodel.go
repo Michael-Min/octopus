@@ -7,7 +7,7 @@ import (
 	"Michael-Min/octopus/engine"
 )
 
-var carDetailRe = regexp.MustCompile(`<a href="(/m\d+/)" target="_blank"`)
+var carDetailRe = regexp.MustCompile(`<a href="(/\d+/price_m[0-9]+.htm)" target="_blank"[^>]*>`)
 
 func ParseCarModel(
 	contents []byte, _ string) engine.ParseResult {

@@ -7,10 +7,10 @@ import (
 	"Michael-Min/octopus/engine"
 )
 
-const host = "http://newcar.xcar.com.cn"
+const host = "http://dealer.xcar.com.cn"
 
-var carModelRe = regexp.MustCompile(`<a href="(/\d+/)" target="_blank" class="list_img">`)
-var carListRe = regexp.MustCompile(`<a href="(//newcar.xcar.com.cn/car/[\d+-]+\d+/)"`)
+var carModelRe = regexp.MustCompile(`<a href="(/\d+/price_m[0-9]+.htm)" target="_blank"[^>]*>`)
+var carListRe = regexp.MustCompile(`<a href="(//dealer.xcar.com.cn/[0-9]+/)" target="_blank"[^>]*>`)
 
 func ParseCarList(
 	contents []byte, _ string) engine.ParseResult {

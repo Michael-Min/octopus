@@ -36,14 +36,14 @@ func CreateProcessor(
 }
 
 func ActClientPool(d *discovery.CrawlerDiscovery) chan pb.ReptilesClient {
-	out := make(chan pb.ReptilesClient)
+	out := make(chan pb.ReptilesClient,1)
 	go func() {
 		clients := map[string]pb.ReptilesClient{}
 
 		for {
 			if host, ok := d.GetRandomIterm("worker"); ok {
 				if client, ok := clients[host]; ok {
-					log.Printf("[Rpc,Connect]: Old clinet to %s\n", host)
+					log.Printf("[Rpc,Connect]: Old client to %s\n", host)
 					out <- client
 					continue
 				} else {
@@ -83,7 +83,7 @@ func CreateClientPool(
 
 	if len(clients) == 0 {
 		return nil, errors.New(
-			"no connections available")
+			"no connections avialable")
 	}
 	out := make(chan pb.ReptilesClient)
 	go func() {

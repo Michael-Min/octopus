@@ -6,8 +6,7 @@ import (
 	pb "Michael-Min/octopus/proto"
 	t "Michael-Min/octopus/worker"
 	"context"
-	"fmt"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"log"
 )
 
@@ -25,10 +24,10 @@ func (s *RPCService) Process(
 
 	engineResult, err := engine.Worker(engineReq)
 	if err != nil {
-		fmt.Printf("==engineResult: error:%s \n", err)
+		log.Printf("==engineResult: error:%s \n", err)
 		return nil, err
 	}
-	fmt.Printf("==engineResult: request %d,item %d \n", len(engineResult.Requests), len(engineResult.Items))
+	log.Printf("==engineResult: request %d,item %d \n", len(engineResult.Requests), len(engineResult.Items))
 	var result = t.SerializeResult(engineResult)
 
 	return &result, nil
